@@ -1,0 +1,108 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  BINARY: bin/dbnest
+
+tasks:
+  default:
+    desc: Build everything (frontend + backend into single binary)
+    cmds:
+      - task: build
+
+  build:
+    desc: Build production binary with embedded frontend
+    deps: [frontend]
+    cmds:
+      - task: backend
+      - echo "Build complete! Binary at {{.BINARY}}"
+
+  frontend:
+    desc: Build frontend static files (Vite + React)
+    dir: frontend
+    cmds:
+      - echo "Building frontend..."
+      - npm run build
+      - echo "Frontend built to frontend/dist/"
+    sources:
+      - src/**/*
+      - package.json
+    generates:
+      - dist/**/*
+
+  backend:
+    desc: Build Go backend for
+    deps: [frontend]
+    cmds:
+      - echo "Building backend (production with embedded frontend)..."
+      - mkdir -p cmd/dbnest/dist
+      - cp -r frontend/dist/* cmd/dbnest/dist/
+      - go build -o {{.BINARY}} ./cmd/dbnest
+      - rm -rf cmd/dbnest/dist
+      - echo "Binary built to {{.BINARY}} (production mode)"
+
+  dev-frontend:
+    desc: Run frontend dev server only (Vite)
+    dir: frontend
+    cmds:
+      - npm run dev
+
+  deps:
+    desc: Install all dependencies
+    cmds:
+      - cd frontend && npm install
+      - go mod tidy
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf bin/
+      - rm -rf frontend/dist/
+      - rm -rf cmd/dbnest/dist/
+
+  run:
+    desc: Build and run the production binary
+    deps: [build]
+    cmds:
+      - ./{{.BINARY}}
+
+  test:
+    desc: Run Go tests
+    cmds:
+      - go test -v -race ./...
+
+  docker:
+    desc: Build Docker image
+    cmds:
+      - docker build -t dbnest:latest -f docker/Dockerfile .
+
+  # GoReleaser tasks
+  release:check:
+    desc: Validate .goreleaser.yml config
+    cmds:
+      - goreleaser check
+
+  release:snapshot:
+    desc: Test goreleaser build locally (no publish)
+    cmds:
+      - goreleaser release --snapshot --clean
+
+  release:dry:
+    desc: Dry run of goreleaser (skip publish, skip validation)
+    cmds:
+      - goreleaser release --skip=publish --snapshot --clean
+
+  release:
+    desc: Create a new release (requires GITHUB_TOKEN)
+    vars:
+      VERSION: '{{.VERSION | default ""}}'
+    cmds:
+      - |
+        if [ -z "{{.VERSION}}" ]; then
+          echo "Usage: task release VERSION=v1.0.0"
+          exit 1
+        fi
+      - git tag -a {{.VERSION}} -m "Release {{.VERSION}}"
+      - git push origin {{.VERSION}}
+      - goreleaser release --clean
