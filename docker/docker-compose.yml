@@ -1,0 +1,34 @@
+services:
+  dbnest:
+    image: ghcr.io/sirrobot01/dbnest:latest
+    container_name: dbnest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # Docker socket for managing database containers
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persistent data storage
+      - dbnest-data:/data
+    command:
+      - --port=8080
+      - --data=/data
+      - --socket=/var/run/docker.sock
+      - --runtime=docker
+    networks:
+      - dbnest-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  dbnest-network:
+    name: dbnest
+    driver: bridge
+
+volumes:
+  dbnest-data:
+    name: dbnest-data

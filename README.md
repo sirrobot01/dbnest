@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <img src="frontend/public/logo.png" alt="DBnest Logo" width="200">
+</p>
 
-## Getting Started
+# DBnest
 
-First, run the development server:
+A self-hosted database management platform. Spin up PostgreSQL, MySQL, MariaDB, or Redis instances in seconds.
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Go Version](https://img.shields.io/badge/go-1.24-blue.svg)
+![Frontend](https://img.shields.io/badge/frontend-React-blue.svg)
+![Backend](https://img.shields.io/badge/backend-Go-blue.svg)
+
+## Overview
+DBnest is a lightweight, self-hosted database management platform that allows developers and teams to quickly provision, manage, and monitor multiple database instances through a unified web interface. It uses containerization technologies like Docker to isolate each database instance, making it easy to create, delete, and manage databases without complex setups.
+
+## Quick Start
+
+### Docker (Recommended)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker run -d \
+  -p 8080:8080 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v dbnest-data:/data \
+  cy01/dbnest:latest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:8080`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Binary
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+./dbnest --port 8080 --data ./data --runtime docker
+```
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+- **PostgreSQL** (v12-16)
+- **MySQL** (v5.7, 8.0, 8.4)
+- **MariaDB** (v10.5-11)
+- **Redis** (v6, 7)
+- Real-time metrics & charts
+- Network Topology Visualization
+- Backup & restore
+- Built-in authentication
+- Docker, Podman, containerd support
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## CLI Options
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+--port PORT       HTTP port (default: 8080)
+--data PATH       Data directory (default: ./data)
+--socket PATH     Container socket path
+--runtime NAME    Runtime: docker, podman, containerd (default: docker)
+--debug           Enable debug logging
+```
 
-## Deploy on Vercel
+## Docker Compose
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```yaml
+# docker/docker-compose.yml
+services:
+  dbnest:
+    image: ghcr.io/sirrobot01/dbnest:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - dbnest-data:/data
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+volumes:
+  dbnest-data:
+```
+
+## Development
+
+```bash
+# Backend
+go run ./cmd/dbnest
+
+# Frontend (separate terminal)
+cd frontend && npm install && npm run dev
+
+# Or use Taskfile
+task run
+```
+
+## Requirements
+
+- Docker/Podman/containerd
+
+## License
+MIT

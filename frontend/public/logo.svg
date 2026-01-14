@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Database cylinder base -->
+  <ellipse cx="256" cy="400" rx="180" ry="50" fill="#1a365d"/>
+  
+  <!-- Database cylinder body -->
+  <path d="M76 180 L76 400 C76 427.6 156.5 450 256 450 C355.5 450 436 427.6 436 400 L436 180" 
+        fill="#4fd1c5" stroke="#1a365d" stroke-width="8"/>
+  
+  <!-- Database stripes -->
+  <ellipse cx="256" cy="180" rx="180" ry="50" fill="#4fd1c5" stroke="#1a365d" stroke-width="8"/>
+  <ellipse cx="256" cy="250" rx="180" ry="50" fill="none" stroke="#1a365d" stroke-width="6"/>
+  <ellipse cx="256" cy="330" rx="180" ry="50" fill="none" stroke="#1a365d" stroke-width="6"/>
+  
+  <!-- Container cube (Docker-like) -->
+  <g transform="translate(256, 120)">
+    <!-- Cube left face -->
+    <polygon points="0,0 -50,25 -50,75 0,50" fill="#2b6cb0"/>
+    <!-- Cube right face -->
+    <polygon points="0,0 50,25 50,75 0,50" fill="#3182ce"/>
+    <!-- Cube top face -->
+    <polygon points="0,0 -50,25 0,50 50,25" fill="#4299e1"/>
+  </g>
+</svg>

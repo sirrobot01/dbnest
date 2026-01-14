@@ -1,0 +1,168 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+    - bash -c "cd frontend && npm ci && npm run build"
+    # Copy frontend dist for embedding (done once before all builds)
+    - mkdir -p cmd/dbnest/dist
+    - bash -c "cp -r frontend/dist/* cmd/dbnest/dist/"
+
+builds:
+  - id: dbnest
+    main: ./cmd/dbnest
+    binary: dbnest
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.ShortCommit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^build:'
+      - '^style:'
+      - '^refactor:'
+      - Merge pull request
+      - Merge branch
+
+release:
+  github:
+    owner: sirrobot01
+    name: dbnest
+  draft: false
+  prerelease: auto
+  mode: replace
+  header: |
+    ## DBNest {{ .Tag }}
+    Welcome to this new release of DBNest!
+
+  footer: |
+    ## Docker Images
+
+    Docker images are available on
+
+    - [GitHub Container Registry](https://github.com/sirrobot01/dbnest/pkgs/container/dbnest)
+    - [Docker Hub](https://hub.docker.com/r/cy01/dbnest)
+
+    ```bash
+    docker pull ghcr.io/sirrobot01/dbnest:{{ .Tag }}
+    docker pull cy01/dbnest:{{ .Tag }}
+    ```
+
+dockers:
+  # GitHub Container Registry - amd64
+  - image_templates:
+      - "ghcr.io/sirrobot01/dbnest:{{ .Tag }}-amd64"
+      - "ghcr.io/sirrobot01/dbnest:latest-amd64"
+    use: buildx
+    dockerfile: docker/Dockerfile.goreleaser
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/amd64"
+    goarch: amd64
+
+  # GitHub Container Registry - arm64
+  - image_templates:
+      - "ghcr.io/sirrobot01/dbnest:{{ .Tag }}-arm64"
+      - "ghcr.io/sirrobot01/dbnest:latest-arm64"
+    use: buildx
+    dockerfile: docker/Dockerfile.goreleaser
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/arm64"
+    goarch: arm64
+
+  # Docker Hub - amd64
+  - image_templates:
+      - "docker.io/cy01/dbnest:{{ .Tag }}-amd64"
+      - "docker.io/cy01/dbnest:latest-amd64"
+    use: buildx
+    dockerfile: docker/Dockerfile.goreleaser
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/amd64"
+    goarch: amd64
+
+  # Docker Hub - arm64
+  - image_templates:
+      - "docker.io/cy01/dbnest:{{ .Tag }}-arm64"
+      - "docker.io/cy01/dbnest:latest-arm64"
+    use: buildx
+    dockerfile: docker/Dockerfile.goreleaser
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/arm64"
+    goarch: arm64
+
+docker_manifests:
+  # GHCR manifests
+  - name_template: "ghcr.io/sirrobot01/dbnest:{{ .Tag }}"
+    image_templates:
+      - "ghcr.io/sirrobot01/dbnest:{{ .Tag }}-amd64"
+      - "ghcr.io/sirrobot01/dbnest:{{ .Tag }}-arm64"
+
+  - name_template: "ghcr.io/sirrobot01/dbnest:latest"
+    image_templates:
+      - "ghcr.io/sirrobot01/dbnest:latest-amd64"
+      - "ghcr.io/sirrobot01/dbnest:latest-arm64"
+
+  # Docker Hub manifests
+  - name_template: "docker.io/cy01/dbnest:{{ .Tag }}"
+    image_templates:
+      - "docker.io/cy01/dbnest:{{ .Tag }}-amd64"
+      - "docker.io/cy01/dbnest:{{ .Tag }}-arm64"
+
+  - name_template: "docker.io/cy01/dbnest:latest"
+    image_templates:
+      - "docker.io/cy01/dbnest:latest-amd64"
+      - "docker.io/cy01/dbnest:latest-arm64"
