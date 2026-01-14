@@ -17,6 +17,10 @@
 /frontend/dist/
 /frontend/.next/
 
+# Embedded frontend (generated during build)
+cmd/dbnest/dist/*
+!cmd/dbnest/dist/.gitkeep
+
 # Go
 /vendor/
 
