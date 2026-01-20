@@ -33,7 +33,7 @@ DBnest is a lightweight, self-hosted database management platform that allows de
 docker run -d \
   -p 8080:8080 \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -v dbnest-data:/data \
+  -v ~/config/dbnest:/data \
   cy01/dbnest:latest
 ```
 
@@ -73,7 +73,7 @@ Open `http://localhost:8080`
 # docker/docker-compose.yml
 services:
   dbnest:
-    image: ghcr.io/sirrobot01/dbnest:latest
+    image: cy01/dbnest:latest
     ports:
       - "8080:8080"
     volumes:
@@ -83,6 +83,8 @@ services:
 volumes:
   dbnest-data:
 ```
+
+
 
 ## Development
 

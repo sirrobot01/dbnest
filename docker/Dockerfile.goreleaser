@@ -1,12 +1,8 @@
 # Final stage only - GoReleaser provides the binary
 FROM alpine:latest
 
-# Install ca-certificates for HTTPS requests and wget for healthcheck
-RUN apk --no-cache add ca-certificates wget
-
-# Create non-root user
-RUN addgroup -g 1000 dbnest && \
-    adduser -D -s /bin/sh -u 1000 -G dbnest dbnest
+# Install ca-certificates for HTTPS requests, wget for healthcheck, and docker-cli
+RUN apk --no-cache add ca-certificates wget docker-cli
 
 # Set working directory
 WORKDIR /app
@@ -14,15 +10,18 @@ WORKDIR /app
 # Copy the binary (GoReleaser puts it in build context)
 COPY dbnest .
 
-# Make it executable and change ownership
-RUN chmod +x dbnest && \
-    chown dbnest:dbnest dbnest
+# Make it executable
+RUN chmod +x dbnest
 
-# Switch to non-root user
-USER dbnest
+# Create data directory
+RUN mkdir -p /data
 
 # Expose ports
 EXPOSE 8080
+
+# Run as root to access Docker socket
+# For better security in production, use a Docker socket proxy
+USER root
 
 # Default command
 ENTRYPOINT ["/app/dbnest"]
