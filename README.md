@@ -11,6 +11,17 @@ A self-hosted database management platform. Spin up PostgreSQL, MySQL, MariaDB, 
 ![Frontend](https://img.shields.io/badge/frontend-React-blue.svg)
 ![Backend](https://img.shields.io/badge/backend-Go-blue.svg)
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [CLI Options](#cli-options)
+- [Docker Compose](#docker-compose)
+- [Development](#development)
+- [Requirements](#requirements)
+- [Screenshots](#screenshots)
+- [License](#license)
 ## Overview
 DBnest is a lightweight, self-hosted database management platform that allows developers and teams to quickly provision, manage, and monitor multiple database instances through a unified web interface. It uses containerization technologies like Docker to isolate each database instance, making it easy to create, delete, and manage databases without complex setups.
 
@@ -89,6 +100,28 @@ task run
 ## Requirements
 
 - Docker/Podman/containerd
+
+## Screenshots
+
+<details>
+<summary>Click to view screenshots</summary>
+
+<p align="center">
+  <img src="docs/screenshots/main.png" alt="Dashboard" width="800">
+  <br><em>Dashboard - Manage all your database instances</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/details.png" alt="Database Details" width="800">
+  <br><em>Database Details - Metrics, logs, and connection info</em>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/topology.png" alt="Network Topology" width="800">
+  <br><em>Network Topology - Visualize your database network</em>
+</p>
+
+</details>
 
 ## License
 MIT
